@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Pub Crawler</string>
+    <string name="title_search_for_pubs">Search For Pubs</string>
+    <string name="title_search_for_pubcrawls">Search For Pub Crawls</string>
+    <string name="title_search_filters">Search Filteres</string>
+
+    <string name="default_search_location">London</string>
+
+    <string name="search_text">Search</string>
+    <string name="default_text">Default Text</string>
+    <string name="default_detail_text">Default Detail Text</string>
+    <string name="default_prompt">">"</string>
+    <string name="default_multiLinetext">Default Text Default Text Default Text Default Text Default Text Default Text Default Text Default Text Default Text Default Text</string>
+    <string name="SearchHintString">TextView</string>
+    <string name="hygiene_content_description">Food Hygiene Rating</string>
+    <string name="dialog_fire_missiles">Fire Missiles?</string>
+    <string name="cancel">Cancel</string>
+    <string name="title_activity_maps_fragment">Map</string>
+    <string name="title_activity_pub_crawl">PubCrawlActivity</string>
+    <string name="map">Map</string>
+    <string name="favourite">Favourite</string>
+    <string name="copy">Copy</string>
+    <string name="email">Email</string>
+    <string name="resequence">Re-order</string>
+    <string name="text_search">Search</string>
+    <string name="text_pubcrawl">Pub crawls</string>
+    <string name="text_filter">Filters</string>
+    <string name="sort">Sort</string>
+    <string name="delete">Delete</string>
+    <string name="nameofpubcrawl">Name Of Pub Crawl</string>
+    <string name="edit">edit name</string>
+    <string name="show_picture">Show picture...</string>
+
+    <string name="title_activity_pub_image">PubImageActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/listOfPubs"
+    android:name="com.example.michaelneilens.mytabview2.ListFragment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none"
+    tools:context="michaelneilens.pubCrawler.ListOfPubCrawlsFragment"
+    tools:listitem="@layout/list_item_detailed_clickable" />
