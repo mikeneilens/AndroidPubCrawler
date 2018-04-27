@@ -23,21 +23,6 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
     private val listOfPubsIOGetList= ListOfPubsIOGetList("retrieve list of pubs")
     private val listOfPubsIOGetListMore = ListOfPubsIOGetListMore("retrieve additional pubs")
 
-    private fun getInitialListOfPubs() {
-        if (!locationEnabled()) {
-            requestListOfPubs(getString(R.string.default_search_location))
-        } else {
-            showProgressBar()
-        }
-    }
-
-    private fun locationEnabled():Boolean {
-        val mainActivity = activity as? MainActivity
-        mainActivity?.let {
-            return it.locationEnabled()
-        }
-        return false
-    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -66,22 +51,38 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
         }
     }
 
+    private fun setTheAdapter(view:View) {
+        if (view is RecyclerView) {
+            val context = view.context
+            view.layoutManager = LinearLayoutManager(context)
+
+            adapter = ListOfPubsRecyclerViewAdapter(mapListItemsFrom(listOfPubs), this)
+            view.adapter = adapter
+        }
+    }
+
+    private fun getInitialListOfPubs() {
+        if (locationEnabled) {
+            showProgressBar()
+        } else {
+            requestListOfPubs(getString(R.string.default_search_location))
+        }
+    }
+
+    private val locationEnabled:Boolean get()  {
+        val mainActivity = activity as? MainActivity
+        mainActivity?.let {
+            return it.locationEnabled()
+        }
+        return false
+    }
+
     override fun onResume() {
         super.onResume()
         val mainActivity = activity as? MainActivity
         mainActivity?.setLocationProcessor(this)
 
         adapter.removeKeyboard()
-    }
-
-    private fun setTheAdapter(view:View) {
-        if (view is RecyclerView) {
-            val context = view.getContext()
-            view.layoutManager = LinearLayoutManager(context)
-
-            adapter = ListOfPubsRecyclerViewAdapter(mapListItemsFrom(listOfPubs), this)
-            view.adapter = adapter
-        }
     }
 
     override fun onPause() {
@@ -114,7 +115,7 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
     override fun onNearMeClick() {
         if (requestInProgress) {return}
 
-        if (locationEnabled()) {
+        if (locationEnabled) {
             lastSearchText = ""
             requestListOfPubsForCurrentLocation(lastLatitude, lastLongitude)
         }
@@ -157,7 +158,7 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
 
     private fun mapListItemsFrom(listOfPubs: ListOfPubs):List<ListItem> {
         val mapFunction = { value: PubDetail -> DetailedClickableListItem(value.name, value.town + ", " + value.distance) }
-        val searchListItem = SearchPubsListItem(lastSearchText,locationEnabled())
+        val searchListItem = SearchPubsListItem(lastSearchText,locationEnabled)
         val listItems = listOf(searchListItem)  + listOfPubs.pubs.map(mapFunction)
 
         return  if (listOfPubs.morePubsService.isEmpty()) {

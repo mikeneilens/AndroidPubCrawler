@@ -3,9 +3,7 @@ package michaelneilens.pubCrawler
 import michaelneilens.pubCrawler.IOInterfaces.ListOfPubsRequester
 import org.json.JSONObject
 
-class ListOfPubsIOGetList(val requestDescription:String):WebService.WebServiceRequester {
-
-    var requester: ListOfPubsRequester? = null
+class ListOfPubsIOGetList(requestDescription:String):AbstractIO<ListOfPubsRequester>(requestDescription) {
 
     fun makeRequest(search:String, userSetting:UserSetting, requester: ListOfPubsRequester) {
         val urlRequest = "http://www.api.neilens.co.uk/ListOfPubs/?search=" + search + userSetting.queryParms()
@@ -24,30 +22,12 @@ class ListOfPubsIOGetList(val requestDescription:String):WebService.WebServiceRe
 
     private fun getListOfPubsForUrl(urlRequest:String, newRequester:ListOfPubsRequester) {
         requester = newRequester
-        val request = WebServiceRequest(url = urlRequest)
-        WebService().execute(request, this)
+        executeRequest(urlRequest)
     }
 
-    override fun processResponse(json: JSONObject) {
-        val message = WebServiceMessage(json)
-
-        if (message.status == 0) {
-            val receivedListOfPubs = ListOfPubs(json)
-            requester?.receivedNew(receivedListOfPubs)
-        } else {
-            requester?.requestFailed(requestDescription, message.text)
-
-        }
+    override fun responseOK(json: JSONObject) {
+        val receivedListOfPubs = ListOfPubs(json)
+        requester?.receivedNew(receivedListOfPubs)
     }
 
-    override fun requestFailed(e: Exception) {
-        if (e is WebServiceException.InvalidRequest)
-            requester?.requestFailed(requestDescription,"Invalid request")
-        else
-            requester?.requestFailed(requestDescription,"")
-    }
-
-    fun cancelRequest() {
-        requester = null
-    }
 }

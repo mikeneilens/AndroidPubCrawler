@@ -2,12 +2,10 @@ package michaelneilens.pubCrawler
 
 import android.os.Parcel
 import android.os.Parcelable
-import org.json.JSONException
+import michaelneilens.pubCrawler.Extensions.getWithDefault
+
 import org.json.JSONObject
 
-/**
- * Created by michaelneilens on 16/03/2018.
- */
 class PubCrawl:Parcelable {
     val name:String
     private val isPublic:Boolean
@@ -24,19 +22,19 @@ class PubCrawl:Parcelable {
     private val sequence:Int
 
     constructor(pubCrawlJSON: JSONObject){
-        name = try { pubCrawlJSON.getString("Name") } catch(e: JSONException) {""}
-        pubsService = try { pubCrawlJSON.getString("PubsService") } catch(e: JSONException) { ""}
-        addPubCrawlService = try { pubCrawlJSON.getString("AddPubCrawlService") } catch(e: JSONException) {""}
-        removePubCrawlService = try { pubCrawlJSON.getString("RemovePubCrawlService") } catch(e: JSONException) {""}
-        copyService = try { pubCrawlJSON.getString("CopyService") } catch(e: JSONException) {""}
-        updateSettingsService = try { pubCrawlJSON.getString("UpdateSettingsService") } catch(e: JSONException) {""}
-        removeService = try { pubCrawlJSON.getString("RemoveService") } catch(e: JSONException) {""}
-        updateService = try { pubCrawlJSON.getString("UpdateService") } catch(e: JSONException) {""}
-        addUserService = try { pubCrawlJSON.getString("AddUserService") } catch(e: JSONException) {""}
-        sequencePubsService = try { pubCrawlJSON.getString("SequencePubsService") } catch(e: JSONException) {""}
-        emailTextService = try { pubCrawlJSON.getString("EmailTextService") } catch(e: JSONException) {""}
-        sequence = try { pubCrawlJSON.getInt("Sequence") } catch(e: JSONException) {0}
-        isPublic = try { pubCrawlJSON.getString("IsPublic") == "y" } catch(e: JSONException) {false}
+        name = pubCrawlJSON.getWithDefault("Name","")
+        pubsService = pubCrawlJSON.getWithDefault("PubsService","")
+        addPubCrawlService = pubCrawlJSON.getWithDefault("AddPubCrawlService","")
+        removePubCrawlService = pubCrawlJSON.getWithDefault("RemovePubCrawlService","")
+        copyService = pubCrawlJSON.getWithDefault("CopyService", "")
+        updateSettingsService = pubCrawlJSON.getWithDefault("UpdateSettingsService", "")
+        removeService = pubCrawlJSON.getWithDefault("RemoveService", "")
+        updateService = pubCrawlJSON.getWithDefault("UpdateService", "")
+        addUserService = pubCrawlJSON.getWithDefault("AddUserService", "")
+        sequencePubsService = pubCrawlJSON.getWithDefault("SequencePubsService", "")
+        emailTextService = pubCrawlJSON.getWithDefault("EmailTextService", "")
+        sequence = pubCrawlJSON.getWithDefault("Sequence", 0)
+        isPublic = pubCrawlJSON.getWithDefault("IsPublic","") == "y"
     }
 
     constructor() {

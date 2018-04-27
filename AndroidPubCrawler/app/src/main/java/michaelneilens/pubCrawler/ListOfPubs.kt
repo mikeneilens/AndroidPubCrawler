@@ -1,35 +1,30 @@
 package michaelneilens.pubCrawler
 
 import android.location.Location
+import michaelneilens.pubCrawler.Extensions.getWithDefault
 import michaelneilens.pubCrawler.Extensions.swap
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-/**
- * Created by michaelneilens on 13/03/2018.
- */
 class ListOfPubs {
     val pubs:List<PubDetail>
     val morePubsService:String
 
     constructor(){
-        pubs = listOf<PubDetail>()
+        pubs = listOf()
         morePubsService = ""
     }
 
     constructor(listOfPubsJSON: JSONObject) {
-        val newPubs:ArrayList<PubDetail> = arrayListOf()
-        try {
-            val pubsJSON = listOfPubsJSON.getJSONArray("Pubs")
-            for (i in 0..(pubsJSON.length() - 1)) {
-                val pubJSON = pubsJSON.getJSONObject(i)
-                val pub = PubDetail(pubJSON)
-                newPubs.add(pub)
-            }
-        } catch (e:JSONException) {
-        }
-        pubs = newPubs
-        morePubsService = try { listOfPubsJSON.getString("MorePubsService") } catch(e:JSONException) {""}
+        val pubsJSON = listOfPubsJSON.getWithDefault("Pubs", JSONArray())
+
+        val mapFunction = {ndx:Int, _:String ->
+            val pubJSON = pubsJSON.getJSONObject(ndx)
+            PubDetail(pubJSON)}
+
+        pubs = List(pubsJSON.length()){""}.mapIndexed(mapFunction)
+        morePubsService = listOfPubsJSON.getWithDefault("MorePubsService", "")
     }
 
     constructor(pubs:List<PubDetail>, morePubsService:String) {

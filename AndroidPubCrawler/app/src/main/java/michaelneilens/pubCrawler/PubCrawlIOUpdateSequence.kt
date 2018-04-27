@@ -3,15 +3,9 @@ package michaelneilens.pubCrawler
 import michaelneilens.pubCrawler.IOInterfaces.ListOfPubsRequester
 import org.json.JSONObject
 
-class PubCrawlIOUpdateSequence(val requestDescription:String):WebService.WebServiceRequester {
+class PubCrawlIOUpdateSequence(requestDescription:String):AbstractIO<ListOfPubsRequester>(requestDescription) {
 
-    private var requester: ListOfPubsRequester?
-
-    init {
-        requester = null
-    }
-
-    fun makeRequest(pubCrawl:PubCrawl, listOfPubs: ListOfPubs, newRequester: ListOfPubsRequester) {
+    fun makeRequest(pubCrawl:PubCrawl, listOfPubs: ListOfPubs, newRequester:ListOfPubsRequester) {
         requester = newRequester
         val csv = createCSV(listOfPubs)
 
@@ -36,29 +30,12 @@ class PubCrawlIOUpdateSequence(val requestDescription:String):WebService.WebServ
 
     private fun saveForUrl(urlRequest:String) {
         println("urlRequest: $urlRequest")
-        val request = WebServiceRequest(urlRequest)
-        WebService().execute(request, this)
+        executeRequest(urlRequest)
     }
 
-    override fun processResponse(json: JSONObject) {
-        val message = WebServiceMessage(json)
-
-        if (message.status == 0) {
-            val listOfPubs = ListOfPubs(json)
-            requester?.receivedNew(listOfPubs)
-        } else {
-            requester?.requestFailed(requestDescription, message.text)
-        }
+    override fun responseOK(json: JSONObject) {
+        val listOfPubs = ListOfPubs(json)
+        requester?.receivedNew(listOfPubs)
     }
 
-    override fun requestFailed(e: Exception) {
-        if (e is WebServiceException.InvalidRequest)
-            requester?.requestFailed(requestDescription,"Invalid request")
-        else
-            requester?.requestFailed(requestDescription,"")
-    }
-
-    fun cancelRequest() {
-        requester = null
-    }
 }

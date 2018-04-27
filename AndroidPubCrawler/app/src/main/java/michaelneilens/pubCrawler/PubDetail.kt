@@ -2,13 +2,11 @@ package michaelneilens.pubCrawler
 
 import android.os.Parcel
 import android.os.Parcelable
+import michaelneilens.pubCrawler.Extensions.getWithDefault
+import michaelneilens.pubCrawler.Extensions.mapJSONArrayToStringArray
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 
-/**
- * Created by michaelneilens on 13/03/2018.
- */
 class PubDetail:Parcelable {
 
     var name:String
@@ -42,77 +40,63 @@ class PubDetail:Parcelable {
     private val nextPubService:String
 
     constructor(pubJSON:JSONObject){
-        name = try { pubJSON.getString("Name") } catch(e:JSONException) {""}
-        town = try { pubJSON.getString("Town") } catch(e:JSONException) {""}
-        distance = try { pubJSON.getString("Distance") } catch(e:JSONException) {""}
-        sequence = try { pubJSON.getInt("Sequence") } catch(e:JSONException) {0}
-        pubService = try { pubJSON.getString("PubService") } catch(e:JSONException) {""}
-        removePubService = try { pubJSON.getString("RemovePubService") } catch(e:JSONException) {""}
-        address = try { pubJSON.getString("Address") } catch(e:JSONException) {""}
-        photoURL = try { pubJSON.getString("PhotoURL") } catch(e:JSONException) {""}
-        telephone = try { pubJSON.getString("Telephone") } catch(e:JSONException) {""}
-        openingTimes = try { pubJSON.getString("OpeningTimes") } catch(e:JSONException) {""}
-        mealTimes = try { pubJSON.getString("MealTimes") } catch(e:JSONException) {""}
-        owner = try { pubJSON.getString("Owner") } catch(e:JSONException) {""}
-        about= try { pubJSON.getString("About") } catch(e:JSONException) {""}
-        changeLikedService = try { pubJSON.getString("ChangeLikedService") } catch(e:JSONException) {""}
-        changeVisitedService = try { pubJSON.getString("ChangeVisitedService") } catch(e:JSONException) {""}
-        hygieneRatingService = try { pubJSON.getString("HygieneRatingService") } catch(e:JSONException) {""}
-        pubsNearByService = try { pubJSON.getString("PubsNearByService") } catch(e:JSONException) {""}
-        visited= try { pubJSON.getString("Visited") } catch(e:JSONException) {"n"}
-        liked = try { pubJSON.getString("Liked") } catch(e:JSONException) {"n"}
-        createPubCrawlService = try { pubJSON.getString("CreatePubCrawlService") } catch(e:JSONException) {""}
-        latitude = try { pubJSON.getDouble("Lat") } catch(e:JSONException) {0.0}
-        longitude = try { pubJSON.getDouble("Lng") } catch(e:JSONException) {0.0}
+        name = pubJSON.getWithDefault("Name","")
+        town = pubJSON.getWithDefault("Town", "")
+        distance = pubJSON.getWithDefault("Distance", "")
+        sequence = pubJSON.getWithDefault("Sequence", 0)
+        pubService = pubJSON.getWithDefault("PubService" ,"")
+        removePubService = pubJSON.getWithDefault("RemovePubService", "")
+        address = pubJSON.getWithDefault("Address", "" )
+        photoURL = pubJSON.getWithDefault("PhotoURL", "")
+        telephone = pubJSON.getWithDefault("Telephone", "")
+        openingTimes = pubJSON.getWithDefault("OpeningTimes", "")
+        mealTimes = pubJSON.getWithDefault("MealTimes", "")
+        owner = pubJSON.getWithDefault("Owner", "")
+        about= pubJSON.getWithDefault("About", "")
+        changeLikedService = pubJSON.getWithDefault("ChangeLikedService", "")
+        changeVisitedService = pubJSON.getWithDefault("ChangeVisitedService", "")
+        hygieneRatingService = pubJSON.getWithDefault("HygieneRatingService", "")
+        pubsNearByService = pubJSON.getWithDefault("PubsNearByService", "")
+        visited= pubJSON.getWithDefault("Visited", "n")
+        liked = pubJSON.getWithDefault("Liked", "n")
+        createPubCrawlService = pubJSON.getWithDefault("CreatePubCrawlService", "")
+        latitude = pubJSON.getWithDefault("Lat", 0.0)
+        longitude = pubJSON.getWithDefault("Lng", 0.0)
 
-        fun mapJSONArray(jsonObject:JSONObject, key:String):List<String> {
-            val tempItems:ArrayList<String> = arrayListOf()
 
-            val jsonArray = try {  jsonObject.getJSONArray(key) } catch(e:JSONException) {JSONArray()}
+        facility = pubJSON.mapJSONArrayToStringArray("Facilities")
+        feature = pubJSON.mapJSONArrayToStringArray( "Features")
+        beer = pubJSON.mapJSONArrayToStringArray( "RegularBeers" )
 
-            for (i in 0..(jsonArray.length() - 1)) {
-                val newItem = jsonArray.get(i) as String
-                tempItems.add(newItem)
-            }
-            return tempItems
-        }
-
-        facility = mapJSONArray(pubJSON, "Facilities")
-        feature = mapJSONArray(pubJSON, "Features")
-        beer = mapJSONArray(pubJSON, "RegularBeers" )
-
-        val guestBeerDesc = try { pubJSON.getString("GuestBeerDesc") } catch(e:JSONException) {""}
+        val guestBeerDesc = pubJSON.getWithDefault("GuestBeerDesc", "")
         guest = if ( guestBeerDesc.isEmpty()) {
-                    mapJSONArray(pubJSON, "GuestBeers" )
+                    pubJSON.mapJSONArrayToStringArray( "GuestBeers" )
                 }
                 else {
-                    listOf(guestBeerDesc) + mapJSONArray(pubJSON, "GuestBeers" )
+                    listOf(guestBeerDesc) + pubJSON.mapJSONArrayToStringArray("GuestBeers" )
                 }
 
-        val tempPubCrawls:ArrayList<PubCrawl> = arrayListOf()
-        val pubCrawlJSONArray = try { pubJSON.getJSONArray("PubCrawl") } catch(e:JSONException) {JSONArray()}
+        val pubCrawlJSONArray = pubJSON.getWithDefault("PubCrawl",JSONArray())
 
-        for (i in 0..(pubCrawlJSONArray.length() - 1)) {
-            val jsonObject = pubCrawlJSONArray.getJSONObject(i)
-            val pubCrawl = PubCrawl(jsonObject)
-            tempPubCrawls.add(pubCrawl)
-        }
-        listOfPubCrawls = tempPubCrawls
-        val tempOtherPubCrawls:ArrayList<PubCrawl> = arrayListOf()
+        val convertToPubCrawl = jsonToPubCrawlMapping(pubCrawlJSONArray)
 
-        val otherPubCrawlJSONArray = try { pubJSON.getJSONArray("OtherPubCrawl") } catch(e:JSONException) {JSONArray()}
+        listOfPubCrawls = List(pubCrawlJSONArray.length()){""}.mapIndexed(convertToPubCrawl)
 
-        for (i in 0..(otherPubCrawlJSONArray.length() - 1)) {
-            val jsonObject = otherPubCrawlJSONArray.getJSONObject(i)
-            val pubCrawl = PubCrawl(jsonObject)
-            tempOtherPubCrawls.add(pubCrawl)
-        }
+        val otherPubCrawlJSONArray = pubJSON.getWithDefault("OtherPubCrawl", JSONArray())
 
-        listOfOtherPubCrawls = tempOtherPubCrawls
+        val convertToOtherPubCrawl = jsonToPubCrawlMapping(otherPubCrawlJSONArray)
+        listOfOtherPubCrawls = List(otherPubCrawlJSONArray.length()){""}.mapIndexed(convertToOtherPubCrawl)
 
-        nextPubService = try { pubJSON.getString("NextPubService") } catch(e:JSONException) {""}
+        nextPubService = pubJSON.getWithDefault("NextPubService", "")
 
     }
+
+    private fun jsonToPubCrawlMapping(jsonArray:JSONArray):(Int, String)-> PubCrawl {
+        return { ndx:Int, _:String ->
+            val jsonObject = jsonArray.getJSONObject(ndx)
+            PubCrawl(jsonObject) }
+    }
+
     constructor() {
         name = ""
         town = ""
@@ -144,15 +128,7 @@ class PubDetail:Parcelable {
         listOfOtherPubCrawls = listOf()
         nextPubService = ""
     }
-/*
-    fun parcel():PubDetailParcel {
-        val pubParcel = PubDetailParcel()
-        pubParcel.name = this.name
-        pubParcel.latitude = this.latitude.toDouble()
-        pubParcel.longitude = this.longitude.toDouble()
-        return pubParcel
-    }
-*/
+
     constructor(parcel: Parcel)  {
         name = parcel.readString()
         latitude = parcel.readDouble()

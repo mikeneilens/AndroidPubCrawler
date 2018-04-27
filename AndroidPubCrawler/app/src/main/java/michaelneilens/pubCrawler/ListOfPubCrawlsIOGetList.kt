@@ -5,13 +5,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-class ListOfPubCrawlsIOGetList(val requestDescription:String):WebService.WebServiceRequester {
-
-    private var requester: ListOfPubCrawlsRequester?
-
-    init {
-        requester = null
-    }
+class ListOfPubCrawlsIOGetList(requestDescription:String):AbstractIO<ListOfPubCrawlsRequester>(requestDescription) {
 
     fun makeRequest(search:String, userSetting:UserSetting, newRequest:ListOfPubCrawlsRequester) {
         requester = newRequest
@@ -27,36 +21,19 @@ class ListOfPubCrawlsIOGetList(val requestDescription:String):WebService.WebServ
 
     private fun getListOfPubCrawlsForUrl(urlRequest:String) {
         println("urlRequest: $urlRequest ")
-        val request = WebServiceRequest(urlRequest)
-        WebService().execute(request, this)
+        executeRequest(urlRequest)
     }
 
-    override fun processResponse(json: JSONObject) {
-        val pubCrawls:ArrayList<PubCrawl> = arrayListOf()
-        val message = WebServiceMessage(json)
+    override fun responseOK(json:JSONObject) {
 
-        if (message.status != 0) {
-            requester?.requestFailed(requestDescription, message.text)
-        } else {
-            val pubCrawlJSONArray =  try{ json.getJSONArray("PubCrawl") } catch(e: JSONException) {JSONArray()}
-            for (i in 0..(pubCrawlJSONArray.length() - 1)) {
-                val jsonObject = pubCrawlJSONArray.getJSONObject(i)
-                val pubCrawl = PubCrawl(jsonObject)
-                pubCrawls.add(pubCrawl)
-            }
-            requester?.receivedNew(pubCrawls)
-        }
+        val pubCrawlJSONArray =  try{ json.getJSONArray("PubCrawl") } catch(e: JSONException) {JSONArray()}
+
+        //converts json object to a PubCrawl object
+        val mapFunction = {ndx:Int, _:String -> val jsonObject = pubCrawlJSONArray.getJSONObject(ndx)
+             PubCrawl(jsonObject)}
+
+        val pubCrawls = List(pubCrawlJSONArray.length()){""}.mapIndexed(mapFunction)
+
+        requester?.receivedNew(pubCrawls)
     }
-
-    override fun requestFailed(e: Exception) {
-        if (e is WebServiceException.InvalidRequest)
-            requester?.requestFailed(requestDescription,"Invalid request")
-        else
-            requester?.requestFailed(requestDescription,"")
-    }
-
-    fun cancelRequest() {
-        requester = null
-    }
-
 }

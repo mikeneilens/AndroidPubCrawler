@@ -4,40 +4,18 @@ import michaelneilens.pubCrawler.IOInterfaces.PubCrawlPublicRequester
 import org.json.JSONException
 import org.json.JSONObject
 
-class PubCrawlIOCopy( val requestDescription:String):WebService.WebServiceRequester {
-
-    private var requester: PubCrawlPublicRequester?
-
-    init {
-        requester = null
-    }
+class PubCrawlIOCopy(requestDescription:String):AbstractIO<PubCrawlPublicRequester>(requestDescription) {
 
     fun makeRequest(pubCrawl:PubCrawl,newRequester: PubCrawlPublicRequester) {
         requester = newRequester
         val url = pubCrawl.copyService
         val urlRequestHttp = url.replace("https","http")
-        val request = WebServiceRequest(urlRequestHttp)
-        WebService().execute(request,this)
+
+        executeRequest(urlRequestHttp)
     }
 
-    override fun processResponse(json: JSONObject) {
-        val message = WebServiceMessage(json)
-
-        if (message.status == 0) {
-            requester?.pubCrawlCopied()
-        } else {
-            requester?.requestFailed(requestDescription, message.text)
-        }
+    override fun responseOK(json: JSONObject) {
+        requester?.pubCrawlCopied()
     }
 
-    override fun requestFailed(e: Exception) {
-        if (e is WebServiceException.InvalidRequest)
-            requester?.requestFailed(requestDescription,"Invalid request")
-        else
-            requester?.requestFailed(requestDescription,"")
-    }
-
-    fun cancelRequest() {
-        requester = null
-    }
 }
