@@ -22,19 +22,19 @@ class PubCrawl:Parcelable {
     private val sequence:Int
 
     constructor(pubCrawlJSON: JSONObject){
-        name = pubCrawlJSON.getWithDefault("Name","")
-        pubsService = pubCrawlJSON.getWithDefault("PubsService","")
-        addPubCrawlService = pubCrawlJSON.getWithDefault("AddPubCrawlService","")
-        removePubCrawlService = pubCrawlJSON.getWithDefault("RemovePubCrawlService","")
-        copyService = pubCrawlJSON.getWithDefault("CopyService", "")
+        name = pubCrawlJSON.getWithDefault(nameKey,"")
+        pubsService = pubCrawlJSON.getWithDefault(pubsServiceKey,"")
+        addPubCrawlService = pubCrawlJSON.getWithDefault(addPubCrawlServiceKey,"")
+        removePubCrawlService = pubCrawlJSON.getWithDefault(removePubCrawlServiceKey,"")
+        copyService = pubCrawlJSON.getWithDefault(copyServiceKey, "")
         updateSettingsService = pubCrawlJSON.getWithDefault("UpdateSettingsService", "")
-        removeService = pubCrawlJSON.getWithDefault("RemoveService", "")
-        updateService = pubCrawlJSON.getWithDefault("UpdateService", "")
-        addUserService = pubCrawlJSON.getWithDefault("AddUserService", "")
-        sequencePubsService = pubCrawlJSON.getWithDefault("SequencePubsService", "")
-        emailTextService = pubCrawlJSON.getWithDefault("EmailTextService", "")
-        sequence = pubCrawlJSON.getWithDefault("Sequence", 0)
-        isPublic = pubCrawlJSON.getWithDefault("IsPublic","") == "y"
+        removeService = pubCrawlJSON.getWithDefault(removeServiceKey, "")
+        updateService = pubCrawlJSON.getWithDefault(updateServiceKey, "")
+        addUserService = pubCrawlJSON.getWithDefault(addUserServiceKey, "")
+        sequencePubsService = pubCrawlJSON.getWithDefault(sequencePubServiceKey, "")
+        emailTextService = pubCrawlJSON.getWithDefault(emailTextServiceKey, "")
+        sequence = pubCrawlJSON.getWithDefault(sequenceKey, 0)
+        isPublic = pubCrawlJSON.getWithDefault(isPublicKey,"") == "y"
     }
 
     constructor() {
@@ -98,5 +98,17 @@ class PubCrawl:Parcelable {
         override fun newArray(size: Int): Array<PubCrawl?> {
             return arrayOfNulls(size)
         }
+        const val nameKey = "Name"
+        const val isPublicKey = "IsPublic"
+        const val pubsServiceKey = "PubsService"
+        const val copyServiceKey = "CopyService"
+        const val addUserServiceKey = "AddUserService"
+        const val emailTextServiceKey = "EmailTextService"
+        const val addPubCrawlServiceKey = "AddPubCrawlService"
+        const val removePubCrawlServiceKey = "RemovePubCrawlService"
+        const val removeServiceKey = "RemoveService"
+        const val updateServiceKey = "UpdateService"
+        const val sequencePubServiceKey = "SequencePubsService"
+        const val sequenceKey = "Sequence"
     }
 }

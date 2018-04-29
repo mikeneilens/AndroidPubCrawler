@@ -17,8 +17,7 @@ class PubDetailIOUpdateVisitedOrLiked(requestDescription:String):AbstractIO<PubD
 
     private fun update(url:String) {
         val urlRequestHttp = url.replace("https","http")
-        val request = WebServiceRequest(urlRequestHttp)
-        WebService().execute(request, this)
+        executeRequest(urlRequestHttp)
     }
 
     override fun responseOK(json: JSONObject) {

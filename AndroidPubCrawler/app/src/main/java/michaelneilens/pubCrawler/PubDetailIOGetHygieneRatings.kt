@@ -6,6 +6,7 @@ import org.json.JSONObject
 class PubDetailIOGetHygieneRatings(val requestDescription:String):WebService.WebServiceRequester {
 
     var requester: PubHygieneRatingRequester?
+    val webService = WebService()
 
     init {
         requester = null
@@ -15,8 +16,8 @@ class PubDetailIOGetHygieneRatings(val requestDescription:String):WebService.Web
         println(urlRequest)
         requester = newRequester
         val urlRequestHttp = urlRequest.replace("https","http")
-        val request = WebServiceRequest(urlRequestHttp)
-        WebService().execute(request, this)
+        webService.createRequest(urlRequestHttp)
+        webService.execute( this)
     }
 
     override fun processResponse(json: JSONObject) {
