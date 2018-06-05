@@ -8,12 +8,14 @@ import android.support.v4.content.ContextCompat
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, OnInfoWindowClickListener {
 
     private lateinit var mapOfPubs: GoogleMap
     private var pubs:List<PubDetail> = arrayListOf()
@@ -41,12 +43,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         addUserLocationMarker()
         addPubMarkers(pubs)
         setUpCamera(pubs)
+
+        mapOfPubs.setOnInfoWindowClickListener (this)
     }
 
     private fun addUserLocationMarker() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            mapOfPubs.setMyLocationEnabled(true)
+            mapOfPubs.isMyLocationEnabled = true
         }
     }
 
@@ -65,6 +69,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         mapOfPubs.moveCamera(CameraUpdateFactory.zoomTo(17f))
     }
 
+    override fun onInfoWindowClick(p0: Marker?) {
+        println("Info window clicked")
+    }
+    
     companion object {
         const val EXTRAS_PUBS = "Pubs"
     }

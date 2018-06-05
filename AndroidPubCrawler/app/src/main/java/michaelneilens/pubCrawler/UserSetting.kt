@@ -11,8 +11,9 @@ class UserSetting(val context:Context) {
                                              ,Option("realAle","Only pubs serving real ale","yes")
                                               ,Option("memberDiscount","Member Discounts","no")
                                               ,Option("garden","Pub Garden","no")
-                                              ,Option("LunchtimeMeal","Serving lunchtime meals","no")
-                                              ,Option("EveningMeal","Serving evening meals","no")
+                                               ,Option("events","Events such as quzies","no")
+                                              ,Option("lmeals","Serving lunchtime meals","no")
+                                              ,Option("emeals","Serving evening meals","no")
     )
 
     init {

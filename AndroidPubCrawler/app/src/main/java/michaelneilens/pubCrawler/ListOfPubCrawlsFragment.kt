@@ -60,8 +60,6 @@ class ListOfPubCrawlsFragment : AbstractFragment(), ListOfPubCrawlsRequester, Li
 
     override fun onPause() {
         super.onPause()
-        val mainActivity = activity as? MainActivity
-        mainActivity?.removeLocationProcessor()
 
         listOfPubCrawlsIOGetList.cancelRequest()
     }

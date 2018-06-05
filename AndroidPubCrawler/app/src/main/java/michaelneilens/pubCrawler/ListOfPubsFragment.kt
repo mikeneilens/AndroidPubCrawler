@@ -1,6 +1,9 @@
 package michaelneilens.pubCrawler
 
+import android.app.Activity
+import android.location.Location
 import android.os.Bundle
+import android.support.v7.widget.ActivityChooserView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -11,13 +14,11 @@ import michaelneilens.pubCrawler.EventListenerInterfaces.ListOfPubsListener
 import michaelneilens.pubCrawler.EventListenerInterfaces.LocationProcessor
 
 
-class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsListener, LocationProcessor {
+class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsListener, LocationRequester {
 
     private var lastSearchText = ""
     private var listOfPubs = ListOfPubs(listOf(), "")
     private var hasNotStartedBefore = true
-    private var lastLatitude:Double = 0.0
-    private var lastLongitude:Double = 0.0
 
     private lateinit var adapter: ListOfPubsRecyclerViewAdapter
     private val listOfPubsIOGetList= ListOfPubsIOGetList("retrieve list of pubs")
@@ -34,7 +35,7 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
         setTheAdapter(view)
 
         if (hasNotStartedBefore) {
-            getInitialListOfPubs()
+            getPubsForCurrentLocation()
             hasNotStartedBefore = false
         }
 
@@ -61,34 +62,30 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
         }
     }
 
-    private fun getInitialListOfPubs() {
-        if (locationEnabled) {
-            showProgressBar()
+    private fun getPubsForCurrentLocation() {
+        val mainActivity = activity as? MainActivity
+        mainActivity?.getLocation(this)
+    }
+
+    override fun processNewLocation(location: Location?) {
+        if (location != null) {
+            requestListOfPubsForCurrentLocation(location.latitude, location.longitude)
         } else {
-            requestListOfPubs(getString(R.string.default_search_location))
+            requestListOfPubs("London")
         }
     }
 
-    private val locationEnabled:Boolean get()  {
-        val mainActivity = activity as? MainActivity
-        mainActivity?.let {
-            return it.locationEnabled()
-        }
-        return false
+    override fun processLocationAccessDenied() {
+        requestListOfPubs("London")
     }
 
     override fun onResume() {
         super.onResume()
-        val mainActivity = activity as? MainActivity
-        mainActivity?.setLocationProcessor(this)
-
         adapter.removeKeyboard()
     }
 
     override fun onPause() {
         super.onPause()
-        val mainActivity = activity as? MainActivity
-        mainActivity?.removeLocationProcessor()
         listOfPubsIOGetList.cancelRequest()
         listOfPubsIOGetListMore.cancelRequest()
     }
@@ -115,10 +112,8 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
     override fun onNearMeClick() {
         if (requestInProgress) {return}
 
-        if (locationEnabled) {
-            lastSearchText = ""
-            requestListOfPubsForCurrentLocation(lastLatitude, lastLongitude)
-        }
+        lastSearchText = ""
+        getPubsForCurrentLocation()
     }
 
     private fun showPubDetailFragment(pub: PubDetail) {
@@ -158,7 +153,7 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
 
     private fun mapListItemsFrom(listOfPubs: ListOfPubs):List<ListItem> {
         val mapFunction = { value: PubDetail -> DetailedClickableListItem(value.name, value.town + ", " + value.distance) }
-        val searchListItem = SearchPubsListItem(lastSearchText,locationEnabled)
+        val searchListItem = SearchPubsListItem(lastSearchText,true)
         val listItems = listOf(searchListItem)  + listOfPubs.pubs.map(mapFunction)
 
         return  if (listOfPubs.morePubsService.isEmpty()) {
@@ -166,15 +161,6 @@ class ListOfPubsFragment: AbstractFragment(), ListOfPubsRequester, ListOfPubsLis
                 } else {
                  listItems + DetailedClickableListItem(MORE_PUBS_TEXT,"")
                 }
-    }
-
-    override fun useNewLocation(latitude: Double, longitude: Double) {
-        lastLatitude = latitude
-        lastLongitude = longitude
-
-        if (listOfPubs.pubs.isEmpty()) {
-            requestListOfPubsForCurrentLocation(latitude , longitude)
-        }
     }
 
     companion object {

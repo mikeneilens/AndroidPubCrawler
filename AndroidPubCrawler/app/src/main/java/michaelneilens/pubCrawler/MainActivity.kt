@@ -1,7 +1,11 @@
 package michaelneilens.pubCrawler
 
 import android.app.Fragment
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import android.view.MenuItem
@@ -17,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     var lastFragmentSelected:Fragment? = null
     private var pubCrawlLink:String = ""
 
-    private lateinit var pcLocationManager:PCLocationManager
+    private lateinit var locatoinProvider: LocationProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,10 +30,7 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             getLinkCrawlId()
             setupBottomNavigation()
-
-            pcLocationManager = PCLocationManager(this,this )
-            pcLocationManager.turnOnLocationServices()
-
+            setUpLocationServices()
             loadInitialFragment()
         } else {
             setupBottomNavigation()
@@ -38,6 +39,31 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.main_toolbar))
 
         title = "Pub Crawler"
+    }
+
+    private fun setUpLocationServices() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            locatoinProvider = LocationProviderForNewAPI(this)
+        } else {
+            locatoinProvider = LocationProviderForOldAPI(this)
+        }
+    }
+    public fun getLocation(locationRequester:LocationRequester?) {
+        locatoinProvider.getLocation(locationRequester)
+    }
+
+    //This is the result of asking for permission to change location settings(API >=23)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        if (requestCode == LocationProvider.MY_LOCATION_PERMISSION_REQUEST) {
+            locatoinProvider.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
+    //this is the result of asking for permission to change location setting(API < 23)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == LocationProvider.MY_LOCATION_PERMISSION_REQUEST) {
+            locatoinProvider.onActivityResult(requestCode, resultCode, data)
+        }
     }
 
     private fun getLinkCrawlId() {
@@ -71,22 +97,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         println("pc MainActivity resumed")
         super.onResume()
-        pcLocationManager.turnOnLocationServices()
     }
 
     override fun onStop() {
         println("pc MainActivity stopped")
         super.onStop()
-        pcLocationManager.turnOffLocationServices()
-    }
-    fun setLocationProcessor(locationProcessor: LocationProcessor) {
-        pcLocationManager.locationProcessor = locationProcessor
-    }
-    fun removeLocationProcessor() {
-        pcLocationManager.locationProcessor = null
-    }
-    fun locationEnabled():Boolean {
-        return pcLocationManager.locationEnabled
     }
 
     private fun setupBottomNavigation() {
