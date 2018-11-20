@@ -6,12 +6,12 @@ import org.json.JSONObject
 class ListOfPubsIOGetList(requestDescription:String):AbstractIO<ListOfPubsRequester>(requestDescription) {
 
     fun makeRequest(search:String, userSetting:UserSetting, requester: ListOfPubsRequester) {
-        val urlRequest = "http://www.api.neilens.co.uk/ListOfPubs/?search=" + search + userSetting.queryParms()
+        val urlRequest = "https://pubcrawlapi.appspot.com/listofpubs/?search=" + search + userSetting.queryParms()
         getListOfPubsForUrl(urlRequest, requester)
     }
 
     fun makeRequestForLocation(lat:Double, lng:Double, userSetting:UserSetting, requester: ListOfPubsRequester) {
-        val urlRequest = "http://www.api.neilens.co.uk/ListOfPubs/?search=nearby&lat=" + lat +  "&lng=" +lng + userSetting.queryParms()
+        val urlRequest = "https://pubcrawlapi.appspot.com/listofpubs/?search=nearby&lat=" + lat +  "&lng=" +lng + userSetting.queryParms()
         getListOfPubsForUrl(urlRequest, requester)
     }
 

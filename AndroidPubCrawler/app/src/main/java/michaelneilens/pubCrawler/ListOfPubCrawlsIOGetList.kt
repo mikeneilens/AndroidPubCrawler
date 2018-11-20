@@ -10,10 +10,10 @@ class ListOfPubCrawlsIOGetList(requestDescription:String):AbstractIO<ListOfPubCr
     fun makeRequest(search:String, userSetting:UserSetting, newRequest:ListOfPubCrawlsRequester) {
         requester = newRequest
         if (search.isNotEmpty()) {
-            val urlRequest = "http://www.api.neilens.co.uk/ListOfPubCrawls/?function=search&search=" + search + userSetting.queryParms()
+            val urlRequest = "https://pubcrawlapi.appspot.com/listofpubcrawls/?function=search&search=" + search + userSetting.queryParms()
             getListOfPubCrawlsForUrl(urlRequest)
         } else {
-            val urlRequest = "http://www.api.neilens.co.uk/ListOfPubCrawls/?function=list" + userSetting.queryParms()
+            val urlRequest = "https://pubcrawlapi.appspot.com/listofpubcrawls/?function=list" + userSetting.queryParms()
             getListOfPubCrawlsForUrl(urlRequest)
         }
 
